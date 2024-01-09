@@ -16,6 +16,7 @@ var years = []string{
 	"2022",
 	"2023",
 }
+
 var days = []string{
 	"day1",
 	"day2",
@@ -55,7 +56,7 @@ func prepareYear() {
 		dirName := fmt.Sprintf("solve%s", y)
 		_, err := os.Stat(dirName)
 		if os.IsNotExist(err) {
-			if err := os.Mkdir(dirName, 0755); err != nil {
+			if err := os.Mkdir(dirName, 0o755); err != nil {
 				panic(err)
 			}
 		}
@@ -70,7 +71,7 @@ func prepareDays(dir string) {
 		_, err := os.Stat(fileName)
 		if os.IsNotExist(err) {
 			content := fmt.Sprintf("package %s", dir)
-			os.WriteFile(fileName, []byte(content), 0644)
+			os.WriteFile(fileName, []byte(content), 0o644)
 		}
 	}
 }
