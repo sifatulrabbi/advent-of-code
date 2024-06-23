@@ -43,3 +43,30 @@ func Day2(dimentions string) int {
 
 	return totalSq
 }
+
+func Day2Part2(boxes string) int {
+	totalRibbonLn := 0
+	boxList := strings.Split(boxes, "\n")
+	for _, box := range boxList {
+		dimStr := strings.Split(box, "x")
+		dims := []int{}
+		for _, d := range dimStr {
+			n, _ := strconv.ParseInt(d, 10, 32)
+			dims = append(dims, int(n))
+		}
+
+		for i := 0; i < len(dims); i++ {
+			j := i + 1
+			if j >= len(dims) {
+				continue
+			}
+			if dims[i] > dims[j] {
+				dims[i], dims[j] = dims[j], dims[i]
+			}
+		}
+
+		ribbonLn := 2*(dims[0]+dims[1]) + (dims[0] * dims[1] * dims[2])
+		totalRibbonLn += ribbonLn
+	}
+	return totalRibbonLn
+}
