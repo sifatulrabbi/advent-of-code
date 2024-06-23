@@ -12,6 +12,9 @@ func SolveDay4Part1(secret string) {
 	if _, err := hasher.Write([]byte(secret)); err != nil {
 		log.Fatalln(err)
 	}
-	md5Sig := hex.EncodeToString(hasher.Sum(nil))
-	fmt.Println(md5Sig)
+	tries := 100_000_000_000
+	for i := 0; i < tries; i++ {
+		md5Sig := hex.EncodeToString(hasher.Sum(nil))
+		fmt.Println(md5Sig)
+	}
 }
