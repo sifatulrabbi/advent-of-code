@@ -51,6 +51,47 @@ func SolveDay6Part1(input string) int {
 	return totalLit
 }
 
+func SolveDay6Part2(input string) int {
+	instructions, actions := parseInstructions(input)
+	grid := getLightsGridWithBrightness()
+
+	for i, ins := range instructions {
+		yDist := ins[1][0] - ins[0][0]
+		xDist := ins[1][1] - ins[0][1]
+		for y := 0; y <= yDist; y++ {
+			for x := 0; x <= xDist; x++ {
+				yi := ins[0][0] + y
+				xi := ins[0][1] + x
+				switch actions[i] {
+				case OFF:
+					grid[yi][xi]--
+					if grid[yi][xi] < 0 {
+						grid[yi][xi] = 0
+					}
+					break
+				case ON:
+					grid[yi][xi]++
+					break
+				case TOGGLE:
+					grid[yi][xi] += 2
+					break
+				}
+			}
+		}
+	}
+
+	totalBrightness := 0
+	for _, row := range grid {
+		for _, v := range row {
+			if v > 0 {
+				totalBrightness += v
+			}
+		}
+	}
+
+	return totalBrightness
+}
+
 func parseInstructions(input string) ([][][]int, []int) {
 	var (
 		instructions [][][]int
@@ -100,6 +141,15 @@ func getLightsGrid() [][]bool {
 	mtx := make([][]bool, 1000)
 	for i := 0; i < len(mtx); i++ {
 		row := make([]bool, 1000)
+		mtx[i] = row
+	}
+	return mtx
+}
+
+func getLightsGridWithBrightness() [][]int {
+	mtx := make([][]int, 1000)
+	for i := 0; i < len(mtx); i++ {
+		row := make([]int, 1000)
 		mtx[i] = row
 	}
 	return mtx
