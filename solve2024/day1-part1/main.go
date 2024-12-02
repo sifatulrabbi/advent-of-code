@@ -24,11 +24,11 @@ func main() {
 	input := string(f)
 	lines := strings.Split(input, "\n")
 	lines = lines[:len(lines)-1]
-	l, r := []int64{}, []int64{}
+	l, r := []int{}, []int{}
 	for _, line := range lines {
 		sides := strings.Split(line, "   ")
-		leftSide, _ := strconv.ParseInt(sides[0], 10, 32)
-		rightSide, _ := strconv.ParseInt(sides[1], 10, 32)
+		leftSide, _ := strconv.Atoi(sides[0])
+		rightSide, _ := strconv.Atoi(sides[1])
 		l = append(l, leftSide)
 		r = append(r, rightSide)
 	}
@@ -36,7 +36,7 @@ func main() {
 	ascSort(l)
 	ascSort(r)
 
-	var distance int64 = 0
+	var distance int = 0
 	for i, v := range l {
 		d := v - r[i]
 		if d < 0 {
@@ -48,7 +48,7 @@ func main() {
 	fmt.Println(distance)
 }
 
-func ascSort(arr []int64) {
+func ascSort(arr []int) {
 	for i := 0; i < len(arr)-1; i++ {
 		for j := i + 1; j < len(arr); j++ {
 			if arr[i] > arr[j] {
