@@ -1,14 +1,27 @@
-package solve2024
+package main
 
 import (
+	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 )
 
-func Day1Part1(input string) int {
-	// input := utils.ReadInputFile(1, 2024)
-	// fmt.Println(input)
+func main() {
+	// inputFile := "./solve2024/input-day1-2024.test.txt"
+	inputFile := "./solve2024/input-day1-2024.txt"
+	// inputFile, err := filepath.Abs(inputFile)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
+	f, err := os.ReadFile(inputFile)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	input := string(f)
 	lines := strings.Split(input, "\n")
 	lines = lines[:len(lines)-1]
 	l, r := []int64{}, []int64{}
@@ -29,11 +42,10 @@ func Day1Part1(input string) int {
 		if d < 0 {
 			d = -d
 		}
-		// fmt.Println(v, r[i], "=", d)
 		distance += d
 	}
 
-	return int(distance)
+	fmt.Println(distance)
 }
 
 func ascSort(arr []int64) {
