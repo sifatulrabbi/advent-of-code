@@ -23,6 +23,7 @@ type Program struct {
 
 // sample of valid expression: mul(123,123)
 type Expression struct {
+	Enabled    *Token
 	Mul        *Token
 	ParenLeft  *Token
 	NumLeft    *Token
@@ -45,19 +46,23 @@ const (
 )
 
 func main() {
-	// f, err := os.ReadFile("./solve2024/inputs/input-day3-test.txt")
-	f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
-	if err != nil {
-		log.Fatal(err)
+	{
+		// f, err := os.ReadFile("./solve2024/inputs/input-day3-test.txt")
+		f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		solvePart1(string(f))
 	}
-	solvePart1(string(f))
 
-	// f, err = os.ReadFile("./solve2024/inputs/input-day3-part2-test.txt")
-	f, err = os.ReadFile("./solve2024/inputs/input-day3-part2.txt")
-	if err != nil {
-		log.Fatal(err)
+	{
+		// f, err := os.ReadFile("./solve2024/inputs/input-day3-part2-test.txt")
+		f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		solvePart2(string(f))
 	}
-	solvePart2(string(f))
 }
 
 func solvePart1(input string) {
@@ -71,18 +76,10 @@ func solvePart1(input string) {
 	}
 	program.Parse()
 	expressions := program.ParseExpressions()
-
-	total := 0
-	for _, exp := range expressions {
-		l, _ := strconv.Atoi(exp.NumLeft.Value)
-		r, _ := strconv.Atoi(exp.NumRight.Value)
-		total += l * r
-	}
-	fmt.Println("part1:", total)
+	fmt.Println("part1:", calcTotal(expressions))
 }
 
 func solvePart2(input string) {
-	// fmt.Println("input:", input)
 	program := Program{
 		input:    string(input),
 		currIdx:  0,
@@ -90,24 +87,22 @@ func solvePart2(input string) {
 		Tokens:   []Token{},
 		Extended: true,
 	}
+
 	program.Parse()
 
+	// fmt.Printf("\ntokens:\n")
 	// program.Print()
 	// fmt.Println()
 
 	expressions := program.ParseExpressions()
-
+	// {
+	// fmt.Printf("\nexpressions:\n")
 	// for _, e := range expressions {
 	// 	e.Print()
+	// 	fmt.Printf(" ")
 	// }
-
-	total := 0
-	for _, exp := range expressions {
-		l, _ := strconv.Atoi(exp.NumLeft.Value)
-		r, _ := strconv.Atoi(exp.NumRight.Value)
-		total += l * r
-	}
-	fmt.Println("part2:", total)
+	// }
+	fmt.Println("part2:", calcTotal(expressions))
 }
 
 func (p *Program) Parse() {
@@ -160,10 +155,15 @@ func (p *Program) parseSpecials() {
 
 func (p *Program) parseExtended() {
 	for slices.Contains(extendedChars, p.peek()) {
-		p.peekIdx++
+		if p.peek() == ")" {
+			p.peekIdx++
+			break
+		} else {
+			p.peekIdx++
+		}
 	}
 	if val := p.input[p.currIdx:p.peekIdx]; slices.Contains(extendedTokens, val) {
-		p.Tokens = append(p.Tokens, Token{Value: val, Type: OperatorToken})
+		p.Tokens = append(p.Tokens, Token{Value: val, Type: KeywordToken})
 	}
 	p.currIdx = p.peekIdx
 }
@@ -185,6 +185,7 @@ func (p *Program) ParseExpressions() []Expression {
 
 		if p.Extended && slices.Contains(extendedTokens, tok.Value) {
 			skip = tok.Value == "don't()"
+			expressions = append(expressions, Expression{Enabled: &tok})
 			continue
 		}
 
@@ -261,6 +262,10 @@ func (p *Program) Print() {
 }
 
 func (e *Expression) Print() {
+	if e.Enabled != nil {
+		fmt.Printf("%v", e.Enabled.Value)
+		return
+	}
 	if e.Mul != nil {
 		fmt.Printf("%v", e.Mul.Value)
 	}
@@ -279,5 +284,18 @@ func (e *Expression) Print() {
 	if e.ParenRight != nil {
 		fmt.Printf("%v", e.ParenRight.Value)
 	}
-	fmt.Println()
+}
+
+func calcTotal(expressions []Expression) int {
+	total := 0
+	for _, exp := range expressions {
+		if exp.Enabled != nil {
+			continue
+		}
+
+		l, _ := strconv.Atoi(exp.NumLeft.Value)
+		r, _ := strconv.Atoi(exp.NumRight.Value)
+		total += l * r
+	}
+	return total
 }
