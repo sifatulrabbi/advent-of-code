@@ -23,7 +23,7 @@ type Program struct {
 
 // sample of valid expression: mul(123,123)
 type Expression struct {
-	Enabled    *Token
+	// Enabled    *Token
 	Mul        *Token
 	ParenLeft  *Token
 	NumLeft    *Token
@@ -185,7 +185,7 @@ func (p *Program) ParseExpressions() []Expression {
 
 		if p.Extended && slices.Contains(extendedTokens, tok.Value) {
 			skip = tok.Value == "don't()"
-			expressions = append(expressions, Expression{Enabled: &tok})
+			// expressions = append(expressions, Expression{Enabled: &tok})
 			continue
 		}
 
@@ -262,10 +262,10 @@ func (p *Program) Print() {
 }
 
 func (e *Expression) Print() {
-	if e.Enabled != nil {
-		fmt.Printf("%v", e.Enabled.Value)
-		return
-	}
+	// if e.Enabled != nil {
+	//	fmt.Printf("%v", e.Enabled.Value)
+	//	return
+	// }
 	if e.Mul != nil {
 		fmt.Printf("%v", e.Mul.Value)
 	}
