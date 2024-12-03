@@ -31,9 +31,9 @@ type Expression struct {
 }
 
 var (
-	numericChars  = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
-	operatorChars = []string{"(", ")", ","}
-	keywordChars  = []string{"m", "u", "l"}
+	numericChars = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
+	keywordChars = []string{"m", "u", "l"}
+	// allowedSpacialChars = []string{"(", ")", ","}
 )
 
 const (
@@ -43,8 +43,8 @@ const (
 )
 
 func main() {
-	f, err := os.ReadFile("./solve2024/inputs/input-day3-test.txt")
-	// f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
+	// f, err := os.ReadFile("./solve2024/inputs/input-day3-test.txt")
+	f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -83,24 +83,15 @@ func (p *Program) Parse() {
 	for p.currIdx < len(p.input) {
 		char := string(p.input[p.currIdx])
 
-		if char == " " && len(p.Tokens) > 0 {
-			p.Tokens[len(p.Tokens)-1].Value += " "
-		}
-
 		if slices.Contains(numericChars, char) {
 			p.parseNumber()
-			continue
-		}
-		if slices.Contains(operatorChars, char) {
-			p.parseOperator()
 			continue
 		}
 		if slices.Contains(keywordChars, char) {
 			p.parseKeyword()
 			continue
 		}
-		p.currIdx++
-		p.peekIdx++
+		p.parseSpecials()
 	}
 }
 
@@ -124,7 +115,7 @@ func (p *Program) parseKeyword() {
 	p.currIdx = p.peekIdx
 }
 
-func (p *Program) parseOperator() {
+func (p *Program) parseSpecials() {
 	p.peekIdx++
 	val := p.input[p.currIdx:p.peekIdx]
 	p.Tokens = append(p.Tokens, Token{Value: val, Type: OperatorToken})
@@ -147,10 +138,6 @@ func (p *Program) ParseExpressions() []Expression {
 		expected := exp.ExpectedToken()
 
 		if tok.Type != expected.Type || (expected.Value != "" && expected.Value != tok.Value) {
-			// fmt.Printf("expected: %v, got: %v\n", expected.Value, tok.Value)
-			// fmt.Printf("invalid: ")
-			// exp.PrintExpression()
-
 			exp = Expression{}
 			continue
 		}
@@ -158,9 +145,6 @@ func (p *Program) ParseExpressions() []Expression {
 		exp.SetToken(&tok)
 
 		if exp.ExpectedToken() == nil {
-			// fmt.Printf("valid: ")
-			// exp.PrintExpression()
-
 			expressions = append(expressions, exp)
 			exp = Expression{}
 		}
