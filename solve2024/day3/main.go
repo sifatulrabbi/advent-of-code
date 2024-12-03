@@ -6,7 +6,6 @@ import (
 	"os"
 	"slices"
 	"strconv"
-	"strings"
 )
 
 type Token struct {
@@ -44,25 +43,26 @@ const (
 )
 
 func main() {
-	// f, err := os.ReadFile("./solve2024/inputs/input-day3-test.txt")
-	f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
+	f, err := os.ReadFile("./solve2024/inputs/input-day3-test.txt")
+	// f, err := os.ReadFile("./solve2024/inputs/input-day3.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	program := Program{
-		input:   strings.TrimSpace(string(f)),
+		input:   string(f),
 		currIdx: 0,
-		peekIdx: 1,
+		peekIdx: 0,
 		Tokens:  []Token{},
 	}
 	solvePart1(program)
 }
 
 func solvePart1(program Program) {
+	fmt.Println("input:", program.input)
 	program.Parse()
 
-	// program.PrintProgram()
-	// fmt.Println()
+	program.Print()
+	fmt.Println()
 
 	expressions := program.ParseExpressions()
 
@@ -82,6 +82,11 @@ func solvePart1(program Program) {
 func (p *Program) Parse() {
 	for p.currIdx < len(p.input) {
 		char := string(p.input[p.currIdx])
+
+		if char == " " && len(p.Tokens) > 0 {
+			p.Tokens[len(p.Tokens)-1].Value += " "
+		}
+
 		if slices.Contains(numericChars, char) {
 			p.parseNumber()
 			continue
