@@ -14,10 +14,11 @@ type Token struct {
 }
 
 type Program struct {
-	input   string
-	Tokens  []Token
-	currIdx int
-	peekIdx int
+	input    string
+	Tokens   []Token
+	Extended bool
+	currIdx  int
+	peekIdx  int
 }
 
 // sample of valid expression: mul(123,123)
@@ -31,9 +32,10 @@ type Expression struct {
 }
 
 var (
-	numericChars = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
-	keywordChars = []string{"m", "u", "l"}
-	// allowedSpacialChars = []string{"(", ")", ","}
+	numericChars   = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
+	keywordChars   = []string{"m", "u", "l"}
+	extendedChars  = []string{"d", "o", "n", "'", "t", "(", ")"}
+	extendedTokens = []string{"do()", "don't()"}
 )
 
 const (
@@ -48,21 +50,50 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	program := Program{
-		input:   string(f),
-		currIdx: 0,
-		peekIdx: 0,
-		Tokens:  []Token{},
+	solvePart1(string(f))
+
+	// f, err = os.ReadFile("./solve2024/inputs/input-day3-part2-test.txt")
+	f, err = os.ReadFile("./solve2024/inputs/input-day3-part2.txt")
+	if err != nil {
+		log.Fatal(err)
 	}
-	solvePart1(program)
+	solvePart2(string(f))
 }
 
-func solvePart1(program Program) {
-	fmt.Println("input:", program.input)
+func solvePart1(input string) {
+	// fmt.Println("input:", input)
+	program := Program{
+		input:    string(input),
+		currIdx:  0,
+		peekIdx:  0,
+		Tokens:   []Token{},
+		Extended: false,
+	}
+	program.Parse()
+	expressions := program.ParseExpressions()
+
+	total := 0
+	for _, exp := range expressions {
+		l, _ := strconv.Atoi(exp.NumLeft.Value)
+		r, _ := strconv.Atoi(exp.NumRight.Value)
+		total += l * r
+	}
+	fmt.Println("part1:", total)
+}
+
+func solvePart2(input string) {
+	// fmt.Println("input:", input)
+	program := Program{
+		input:    string(input),
+		currIdx:  0,
+		peekIdx:  0,
+		Tokens:   []Token{},
+		Extended: true,
+	}
 	program.Parse()
 
-	program.Print()
-	fmt.Println()
+	// program.Print()
+	// fmt.Println()
 
 	expressions := program.ParseExpressions()
 
@@ -76,13 +107,17 @@ func solvePart1(program Program) {
 		r, _ := strconv.Atoi(exp.NumRight.Value)
 		total += l * r
 	}
-	fmt.Println(total)
+	fmt.Println("part2:", total)
 }
 
 func (p *Program) Parse() {
 	for p.currIdx < len(p.input) {
 		char := string(p.input[p.currIdx])
 
+		if p.Extended && char == "d" {
+			p.parseExtended()
+			continue
+		}
 		if slices.Contains(numericChars, char) {
 			p.parseNumber()
 			continue
@@ -91,6 +126,7 @@ func (p *Program) Parse() {
 			p.parseKeyword()
 			continue
 		}
+
 		p.parseSpecials()
 	}
 }
@@ -122,6 +158,16 @@ func (p *Program) parseSpecials() {
 	p.currIdx = p.peekIdx
 }
 
+func (p *Program) parseExtended() {
+	for slices.Contains(extendedChars, p.peek()) {
+		p.peekIdx++
+	}
+	if val := p.input[p.currIdx:p.peekIdx]; slices.Contains(extendedTokens, val) {
+		p.Tokens = append(p.Tokens, Token{Value: val, Type: OperatorToken})
+	}
+	p.currIdx = p.peekIdx
+}
+
 func (p *Program) peek() string {
 	if p.peekIdx > len(p.input)-1 {
 		return ""
@@ -131,12 +177,18 @@ func (p *Program) peek() string {
 
 func (p *Program) ParseExpressions() []Expression {
 	expressions := []Expression{}
+	skip := false
 	exp := Expression{}
 
 	for j := 0; j < len(p.Tokens); j++ {
 		tok := p.Tokens[j]
-		expected := exp.ExpectedToken()
 
+		if p.Extended && slices.Contains(extendedTokens, tok.Value) {
+			skip = tok.Value == "don't()"
+			continue
+		}
+
+		expected := exp.ExpectedToken()
 		if tok.Type != expected.Type || (expected.Value != "" && expected.Value != tok.Value) {
 			exp = Expression{}
 			continue
@@ -145,7 +197,9 @@ func (p *Program) ParseExpressions() []Expression {
 		exp.SetToken(&tok)
 
 		if exp.ExpectedToken() == nil {
-			expressions = append(expressions, exp)
+			if !skip {
+				expressions = append(expressions, exp)
+			}
 			exp = Expression{}
 		}
 	}
@@ -201,7 +255,7 @@ func (e *Expression) SetToken(tok *Token) {
 
 func (p *Program) Print() {
 	for _, tok := range p.Tokens {
-		fmt.Printf("%v", tok.Value)
+		fmt.Printf("%v ", tok.Value)
 	}
 	fmt.Println()
 }
