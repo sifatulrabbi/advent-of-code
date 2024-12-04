@@ -289,9 +289,9 @@ func (e *Expression) Print() {
 func calcTotal(expressions []Expression) int {
 	total := 0
 	for _, exp := range expressions {
-		if exp.Enabled != nil {
-			continue
-		}
+		// if exp.Enabled != nil {
+		// 	continue
+		// }
 
 		l, _ := strconv.Atoi(exp.NumLeft.Value)
 		r, _ := strconv.Atoi(exp.NumRight.Value)
