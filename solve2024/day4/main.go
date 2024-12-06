@@ -27,6 +27,48 @@ func main() {
 	// part2(mtx)
 }
 
+func part1(mtx Matrix) {
+	count := 0
+	dim := [2]int{len(mtx), len(mtx[0])}
+
+	for y := 0; y < dim[0]; y++ {
+		for x := 0; x < dim[1]; x++ {
+			char := mtx[y][x]
+			if char != "X" {
+				continue
+			}
+			for _, dir := range directions {
+				if mtx.CheckValidSequence(y, x, dir) {
+					count++
+				}
+			}
+		}
+	}
+
+	fmt.Println("Part1:", count)
+}
+
+func part2(mtx Matrix) {
+	count := 0
+	dim := [2]int{len(mtx), len(mtx[0])}
+
+	for y := 0; y < dim[0]; y++ {
+		for x := 0; x < dim[1]; x++ {
+			char := mtx[y][x]
+			if char != "X" {
+				continue
+			}
+			for _, dir := range directions {
+				if mtx.CheckValidSequence(y, x, dir) {
+					count++
+				}
+			}
+		}
+	}
+
+	fmt.Println("Part1:", count)
+}
+
 type Matrix [][]string
 
 func (m Matrix) getByDirection(y, x int, direction [2]int) string {
@@ -49,27 +91,6 @@ func (m Matrix) CheckValidSequence(y, x int, dir [2]int) bool {
 		currX += dir[1]
 	}
 	return true
-}
-
-func part1(mtx Matrix) {
-	count := 0
-	dim := [2]int{len(mtx), len(mtx[0])}
-
-	for y := 0; y < dim[0]; y++ {
-		for x := 0; x < dim[1]; x++ {
-			char := mtx[y][x]
-			if char != "X" {
-				continue
-			}
-			for _, dir := range directions {
-				if mtx.CheckValidSequence(y, x, dir) {
-					count++
-				}
-			}
-		}
-	}
-
-	fmt.Println("Part1:", count)
 }
 
 func inputToMatrix(input string) Matrix {
