@@ -24,7 +24,7 @@ func main() {
 	mtx := inputToMatrix(string(f))
 
 	part1(mtx)
-	// part2(mtx)
+	part2(mtx)
 }
 
 func part1(mtx Matrix) {
@@ -55,18 +55,16 @@ func part2(mtx Matrix) {
 	for y := 0; y < dim[0]; y++ {
 		for x := 0; x < dim[1]; x++ {
 			char := mtx[y][x]
-			if char != "X" {
+			if char != "A" {
 				continue
 			}
-			for _, dir := range directions {
-				if mtx.CheckValidSequence(y, x, dir) {
-					count++
-				}
+			if mtx.CheckCrossSequence(y, x) {
+				count++
 			}
 		}
 	}
 
-	fmt.Println("Part1:", count)
+	fmt.Println("Part2:", count)
 }
 
 type Matrix [][]string
@@ -91,6 +89,23 @@ func (m Matrix) CheckValidSequence(y, x int, dir [2]int) bool {
 		currX += dir[1]
 	}
 	return true
+}
+
+func (m Matrix) CheckCrossSequence(y, x int) bool {
+	ul := [2]int{-1, -1} // upper-left
+	br := [2]int{+1, +1} // bottom-right
+	ur := [2]int{-1, +1} // upper-right
+	bl := [2]int{+1, -1} // bottom-left
+	matched := 0
+	if (m.getByDirection(y, x, ul) == "M" && m.getByDirection(y, x, br) == "S") ||
+		(m.getByDirection(y, x, ul) == "S" && m.getByDirection(y, x, br) == "M") {
+		matched++
+	}
+	if (m.getByDirection(y, x, ur) == "M" && m.getByDirection(y, x, bl) == "S") ||
+		(m.getByDirection(y, x, ur) == "S" && m.getByDirection(y, x, bl) == "M") {
+		matched++
+	}
+	return matched == 2
 }
 
 func inputToMatrix(input string) Matrix {
